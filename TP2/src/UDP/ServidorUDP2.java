@@ -31,6 +31,7 @@ public class ServidorUDP2 extends Thread {
                 int port = packet.getPort();
                 packet = new DatagramPacket(buf, buf.length, address, port);
                 String received = new String(packet.getData(), 0, packet.getLength());
+                System.out.println("Received " + received);
 
                 if (received.equals("end")) {
                     running = false;
