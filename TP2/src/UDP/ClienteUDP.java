@@ -4,27 +4,36 @@ import java.io.IOException;
 import java.net.*;
 
 public class ClienteUDP {
-    private static InetAddress IPAdress;
+    private DatagramSocket socket;
+    private InetAddress address;
 
-    public static void main(String[] args) {
+    private byte[] buf;
 
+    public ClienteUDP() {
         try {
-            DatagramSocket clientSocket = new DatagramSocket();
+            socket = new DatagramSocket();
+            address = InetAddress.getByName("localhost");
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 
-            InetAddress IPAddress = InetAddress.getByName("10.2.2.1");
-
-            byte[] sendData = new byte[1024];
-            byte[] receiveData = new byte[1024];
-
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAdress, 9876);
-
-            clientSocket.send(sendPacket);
-
-            DatagramPacket receivePacket = null;
-            clientSocket.receive(receivePacket);
-
+    public String sendEcho(String msg) {
+        String received = "";
+        try {
+            buf = msg.getBytes();
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
+            socket.send(packet);
+            packet = new DatagramPacket(buf, buf.length);
+            socket.receive(packet);
+            received = new String(packet.getData(), 0, packet.getLength());
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return received;
+    }
+
+    public void close() {
+        socket.close();
     }
 }

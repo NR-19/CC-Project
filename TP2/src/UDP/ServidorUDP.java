@@ -4,22 +4,42 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
-public class ServidorUDP {
+public class ServidorUDP extends Thread {
+    private DatagramSocket socket;
+    private boolean running;
+    private byte[] buf =  new byte[256];
 
-    public static void main(String[] args) {
+    public ServidorUDP() {
+        try {
+            this.socket = new DatagramSocket(4445);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void run() {
+        running = true;
 
         try {
-            DatagramSocket serverSocket = new DatagramSocket(9876);
-            byte[] receiveData = new byte[1024];
-            while(true){
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                serverSocket.receive(receivePacket);
+            while (running) {
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                socket.receive(packet);
 
-                String sentence = new String(receivePacket.getData());
-                InetAddress IPAdress = receivePacket.getAddress();
-                int port = receivePacket.getPort();
+                InetAddress address = packet.getAddress();
+                int port = packet.getPort();
+                packet = new DatagramPacket(buf, buf.length, address, port);
+                String received = new String(packet.getData(), 0, packet.getLength());
+                System.out.println("Received " + received);
+
+                if (received.equals("end")) {
+                    running = false;
+                    continue;
+                }
+                socket.send(packet);
             }
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
