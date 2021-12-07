@@ -7,8 +7,6 @@ public class ClienteUDP {
     private DatagramSocket socket;
     private InetAddress address;
 
-    private byte[] buf;
-
     public ClienteUDP() {
         try {
             socket = new DatagramSocket();
@@ -21,7 +19,7 @@ public class ClienteUDP {
     public String sendEcho(String msg) {
         String received = "";
         try {
-            buf = msg.getBytes();
+            byte[] buf = msg.getBytes();
             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
             socket.send(packet);
             packet = new DatagramPacket(buf, buf.length);
@@ -35,5 +33,13 @@ public class ClienteUDP {
 
     public void close() {
         socket.close();
+    }
+
+    public static void main(String[] args) {
+        ClienteUDP cliente = new ClienteUDP();
+        cliente.sendEcho("Hello World");
+
+        cliente.sendEcho("end");
+        cliente.close();
     }
 }
