@@ -20,11 +20,12 @@ public class ClienteUDP {
         String received = "";
         try {
             byte[] buf = msg.getBytes();
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 80);
             socket.send(packet);
             packet = new DatagramPacket(buf, buf.length);
             socket.receive(packet);
             received = new String(packet.getData(), 0, packet.getLength());
+            System.out.println(received);
         } catch (IOException e) {
             e.printStackTrace();
         }
