@@ -4,32 +4,37 @@ import java.net.DatagramSocket;
 
 public class FFSync {
     public static void main(String[] args) {
+
+        if (args.length < 1) {
+            System.out.println("Argumentos Insuficientes");
+            return;
+        }
+
         System.out.println("Pasta: " + args[0]);
+        System.out.println("IP: " + args[1]);
 
-        for (int i = 1; i < args.length; i++) {
-            System.out.println(args[i]);
-        }
+        new Thread(() -> {
+            boolean running = true;
+            int port = 80;
+            System.out.println("Listening on port: " + port);
 
-        boolean running = true;
-        int port = 80;
-        System.out.println("Listening on port: " + port);
+            try {
+                DatagramSocket serverSocket = new DatagramSocket(port);
 
-        try {
-            DatagramSocket serverSocket = new DatagramSocket(port);
+                while(running) {
+                    byte[] inBuffer = new byte[1500];
+                    DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
+                    serverSocket.receive(inPacket);
 
-            while(running) {
-                byte[] inBuffer = new byte[1500];
-                DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
-                serverSocket.receive(inPacket);
+                    // Criar a thread
+                    ClientHandler ch = new ClientHandler(inPacket);
+                    Thread t = new Thread(ch);
+                    t.start();
+                }
 
-                // Criar a thread
-                ClientHandler ch = new ClientHandler(inPacket);
-                Thread t = new Thread(ch);
-                t.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 }
