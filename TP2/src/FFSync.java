@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -9,14 +10,12 @@ public class FFSync {
             return;
         }
 
-        System.out.println("Pasta: " + args[0]);
-        System.out.println("IP: " + args[1]);
-
         //Efetuar request a um peer no momento do run da app
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-                byte[] data = { 0x1, 0x2 };
+                String hello = "Hello!!";
+                byte[] data = hello.getBytes();
                 int port = 8888;
 
                 DatagramPacket request = new DatagramPacket(data, data.length, ip, port);
@@ -50,6 +49,8 @@ public class FFSync {
                     byte[] inBuffer = new byte[1500];
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
+
+                    System.out.println("Received: " + new String(inBuffer));
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
