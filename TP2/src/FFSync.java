@@ -1,6 +1,8 @@
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -14,9 +16,13 @@ public class FFSync {
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-                String hello = "Hello!!";
-                byte[] data = hello.getBytes();
+                byte[] data;
                 int port = 8888;
+
+                // ######################################################################
+                File file = new File("/Files/teste.txt");
+                data = Files.readAllBytes(file.toPath());
+                // ######################################################################
 
                 DatagramPacket request = new DatagramPacket(data, data.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
@@ -50,7 +56,11 @@ public class FFSync {
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
 
-                    System.out.println("Received: " + new String(inBuffer));
+                    FileOutputStream fos = new FileOutputStream(args[0] + ".txt");
+                    fos.write(inPacket.getData());
+                    System.out.println("Ficheiro Recebido");
+
+                    // System.out.println("Received: " + new String(inBuffer));
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
