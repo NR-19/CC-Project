@@ -24,6 +24,7 @@ public class ClientHandler implements Runnable{
         String receivedString = new String(inBuffer);
         receivedString = receivedString.toUpperCase();              // to Upper case
         byte[] outBuffer = receivedString.getBytes();
+	
 
         // create outgoing packet with data, client IP and client port
         DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, clientIp, port);

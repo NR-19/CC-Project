@@ -12,16 +12,22 @@ public class FFSync {
             return;
         }
 
+        String pasta = args[0];
+
         //Efetuar request a um peer no momento do run da app
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
+		String req = "Send me your files";
                 byte[] data;
                 int port = 8888;
 
+		data = req.getBytes();
+
                 // ######################################################################
-                File file = new File("/Files/teste.txt");
-                data = Files.readAllBytes(file.toPath());
+		// Esta parte funciona (mais ao menos) mas não é assim que se deve fazer                
+		// File file = new File("Files/teste");
+                // data = Files.readAllBytes(file.toPath());
                 // ######################################################################
 
                 DatagramPacket request = new DatagramPacket(data, data.length, ip, port);
@@ -55,12 +61,16 @@ public class FFSync {
                     byte[] inBuffer = new byte[1500];
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
+		
+  		    // ######################################################################
+		    // Também funciona mas não me parece correto
+                    // FileOutputStream fos = new FileOutputStream(args[0] + ".txt");
+                    // fos.write(inPacket.getData());
+                    // System.out.println("Ficheiro Recebido");
+		    // ######################################################################
 
-                    FileOutputStream fos = new FileOutputStream(args[0] + ".txt");
-                    fos.write(inPacket.getData());
-                    System.out.println("Ficheiro Recebido");
-
-                    // System.out.println("Received: " + new String(inBuffer));
+		    System.out.println("Vou enviar os ficheiros em " + pasta
+					+ " para: " + inPacket.getAddress().toString());
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
