@@ -70,15 +70,16 @@ public class FFSync {
                     String[] list = (String[]) o;
                     List<String> filesToSend = new ArrayList<>();
 
-		    System.out.println("A verificar diferenças");
+		            System.out.println("A verificar diferenças");
 
+                    assert files != null;
                     for (String f : files) {
-			for (String f1 : list) {
-				if(!f.equals(f1)) {
-					filesToSend.add(f);
-				}			
-			}
-		    }
+			            for (String f1 : list) {
+				            if(!f.equals(f1)) {
+					            filesToSend.add(f);
+				            }
+			            }
+                    }
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
