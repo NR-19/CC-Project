@@ -1,6 +1,7 @@
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -16,26 +17,25 @@ public class FFSync {
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-		        String req = "Send me your files";
-                byte[] data;
                 int port = 8888;
-
-		        data = req.getBytes();
 
                 // ######################################################################
 		        // Esta parte funciona (mais ao menos) mas não é assim que se deve fazer
-		        File file = new File("Files/teste");
+		        File file = new File(args[0]);
                 // data = Files.readAllBytes(file.toPath());
                 // ######################################################################
 
                 String[] files = file.list();
+                byte[] yourBytes;
 
-                assert files != null;
-                for(String f : files) {
-                    System.out.println("Ficheiro: " + f);
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    ObjectOutputStream out = new ObjectOutputStream(bos);
+                    out.writeObject(files);
+                    out.flush();
+                    yourBytes = bos.toByteArray();
                 }
 
-                DatagramPacket request = new DatagramPacket(data, data.length, ip, port);
+                DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
 
                 socket.send(request);
@@ -74,15 +74,32 @@ public class FFSync {
                     // System.out.println("Ficheiro Recebido");
 		            // ######################################################################
 
-		            System.out.println("Vou enviar os ficheiros em " + pasta
-					                    + " para: " + inPacket.getAddress().toString());
+                    ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
+                    ObjectInput in = null;
+                    List<String> list;
+                    try {
+                        in = new ObjectInputStream(bis);
+                        list = (List<String>) in.readObject();
+                    } finally {
+                        try {
+                            if (in != null) {
+                                in.close();
+                            }
+                        } catch (IOException ex) {
+                            // ignore close exception
+                        }
+                    }
+
+                    for(String l : list) {
+                        System.out.println("Ficheiro: " + l);
+                    }
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
                     t.start();
                 }
 
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }).start();
