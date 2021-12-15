@@ -1,8 +1,6 @@
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.*;
-import java.nio.file.Files;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -18,17 +16,24 @@ public class FFSync {
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-		String req = "Send me your files";
+		        String req = "Send me your files";
                 byte[] data;
                 int port = 8888;
 
-		data = req.getBytes();
+		        data = req.getBytes();
 
                 // ######################################################################
-		// Esta parte funciona (mais ao menos) mas não é assim que se deve fazer                
-		// File file = new File("Files/teste");
+		        // Esta parte funciona (mais ao menos) mas não é assim que se deve fazer
+		        File file = new File("Files/teste");
                 // data = Files.readAllBytes(file.toPath());
                 // ######################################################################
+
+                String[] files = file.list();
+
+                assert files != null;
+                for(String f : files) {
+                    System.out.println("Ficheiro: " + f);
+                }
 
                 DatagramPacket request = new DatagramPacket(data, data.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
@@ -61,16 +66,16 @@ public class FFSync {
                     byte[] inBuffer = new byte[1500];
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
-		
-  		    // ######################################################################
-		    // Também funciona mas não me parece correto
+
+  		            // ######################################################################
+		            // Também funciona mas não me parece correto
                     // FileOutputStream fos = new FileOutputStream(args[0] + ".txt");
                     // fos.write(inPacket.getData());
                     // System.out.println("Ficheiro Recebido");
-		    // ######################################################################
+		            // ######################################################################
 
-		    System.out.println("Vou enviar os ficheiros em " + pasta
-					+ " para: " + inPacket.getAddress().toString());
+		            System.out.println("Vou enviar os ficheiros em " + pasta
+					                    + " para: " + inPacket.getAddress().toString());
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
