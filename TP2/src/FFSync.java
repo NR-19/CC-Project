@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -9,19 +11,15 @@ public class FFSync {
             return;
         }
 
+        File file = new File(args[0]);
+        String[] files = file.list();
+
         //Efetuar request a um peer no momento do run da app
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
 
-                // ######################################################################
-		        // Esta parte funciona (mais ao menos) mas não é assim que se deve fazer
-		        File file = new File(args[0]);
-                // data = Files.readAllBytes(file.toPath());
-                // ######################################################################
-
-                String[] files = file.list();
                 byte[] yourBytes;
 
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -63,13 +61,6 @@ public class FFSync {
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
 
-  		            // ######################################################################
-		            // Também funciona mas não me parece correto
-                    // FileOutputStream fos = new FileOutputStream(args[0] + ".txt");
-                    // fos.write(inPacket.getData());
-                    // System.out.println("Ficheiro Recebido");
-		            // ######################################################################
-
                     ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
                     Object o;
                     try (ObjectInput in = new ObjectInputStream(bis)) {
@@ -77,9 +68,23 @@ public class FFSync {
                     }
 
                     String[] list = (String[]) o;
+                    List<String> filesToSend = new ArrayList<>();
+                    boolean check = false;
 
                     for(String l : list) {
-                        System.out.println("Ficheiro: " + l);
+                        assert files != null;
+                        for (String l1 : files) {
+                            if (l.equals(l1)) {
+                                check = true;
+                                break;
+                            }
+                        }
+                        if (check) {
+                            filesToSend.add(l);
+                            System.out.println("A enviar:" + l);
+                            check = false;
+                        }
+
                     }
 
                     ClientHandler ch = new ClientHandler(inPacket);
