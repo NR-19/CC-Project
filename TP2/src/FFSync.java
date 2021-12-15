@@ -1,7 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
-import java.util.List;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -10,8 +8,6 @@ public class FFSync {
             System.out.println("Argumentos Insuficientes");
             return;
         }
-
-        String pasta = args[0];
 
         //Efetuar request a um peer no momento do run da app
         new Thread(() -> {
@@ -75,20 +71,12 @@ public class FFSync {
 		            // ######################################################################
 
                     ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
-                    ObjectInput in = null;
-                    List<String> list;
-                    try {
-                        in = new ObjectInputStream(bis);
-                        list = (List<String>) in.readObject();
-                    } finally {
-                        try {
-                            if (in != null) {
-                                in.close();
-                            }
-                        } catch (IOException ex) {
-                            // ignore close exception
-                        }
+                    Object o;
+                    try (ObjectInput in = new ObjectInputStream(bis)) {
+                        o = in.readObject();
                     }
+
+                    String[] list = (String[]) o;
 
                     for(String l : list) {
                         System.out.println("Ficheiro: " + l);
