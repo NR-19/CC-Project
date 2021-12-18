@@ -13,6 +13,7 @@ public class FFSync {
 
         File file = new File(args[0]);
         File[] listaF = file.listFiles(File::isFile);
+        //listaF[0].getAbsolutePath()
         String[] files = file.list();
 
         //Efetuar request a um peer no momento do run da app

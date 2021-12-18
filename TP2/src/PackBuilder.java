@@ -38,6 +38,15 @@ public class PackBuilder {
         this.tamanho_fich = pb.getTamanho_fich();
     }
 
+    public byte[] toBytes() throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(this);
+            out.flush();
+            return bos.toByteArray();
+        }
+    }
+
     public PackBuilder fromBytes(byte[] data){
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         Object o;
@@ -51,14 +60,7 @@ public class PackBuilder {
         return pb;
     }
 
-    public byte[] toBytes() throws IOException {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ObjectOutputStream out = new ObjectOutputStream(bos);
-            out.writeObject(this);
-            out.flush();
-            return bos.toByteArray();
-        }
-    }
+
 
 
 
