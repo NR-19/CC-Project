@@ -30,8 +30,15 @@ public class FFSync {
                     fileInfos.add(new FileInfo(f));
                 }
 
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    ObjectOutputStream out = new ObjectOutputStream(bos);
+                    out.writeObject(fileInfos);
+                    out.flush();
+                    yourBytes = bos.toByteArray();
+                }
+
                 // Aqui vamos mandar a lista de filesInfo desta pasta
-                PackBuilder pb =  new PackBuilder();
+                PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
                 yourBytes = pb.toBytes();
 
                 DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
@@ -61,19 +68,20 @@ public class FFSync {
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
 
-                    /*ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
-                    Object o;
-                    try (ObjectInput in = new ObjectInputStream(bis)) {
-                        o = in.readObject();
-                    }*/
-
-                    // Não sei como fazer para garantir que eles ficam a falar no mesmo socket
                     PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
 
                     int pacote = pb.getPacote();
                     if (pacote == 0) {
-                        // Aqui vamos enviar a lista de dados para o outro lado
+                        ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
+                        Object o;
+                        try (ObjectInput in = new ObjectInputStream(bis)) {
+                            o = in.readObject();
+                        }
+                        List<FileInfo> fileInfos = (List<FileInfo>) o;
 
+                        for(FileInfo f : fileInfos) {
+                            System.out.println(f.dataModificacao + " - " + f.nomeFicheiro);
+                        }
                     }
 
                     // String[] list = (String[]) o;
@@ -96,7 +104,7 @@ public class FFSync {
                     t.start();
                 }
 
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }).start();

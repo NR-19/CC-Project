@@ -6,6 +6,7 @@ public class PackBuilder implements Serializable {
     private String filename;
     private int chunk;
     private int tamanho_fich;
+    private byte[] data;
 
     //TIPOS DE PACOTE
     //  TIPO 1 - LISTA DE NOMES DO FICHEIRO
@@ -46,6 +47,10 @@ public class PackBuilder implements Serializable {
         return this.tamanho_fich;
     }
 
+    public byte[] getData() {
+        return this.data;
+    }
+
     public PackBuilder() {
         this.pacote = -1;
         this.filename = "";
@@ -60,11 +65,12 @@ public class PackBuilder implements Serializable {
         this.tamanho_fich = 0;
     }
 
-    public PackBuilder(int pacote, String filename, int chunk, int tamanho_fich){
+    public PackBuilder(int pacote, String filename, int chunk, int tamanho_fich, byte[] data){
         this.pacote = pacote;
         this.filename = filename;
         this.chunk = chunk;
         this.tamanho_fich = tamanho_fich;
+        this.data = data;
     }
 
     public PackBuilder(PackBuilder pb){
