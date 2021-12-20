@@ -38,7 +38,9 @@ public class FFSync {
                 DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
 
+                System.out.println("A mandar o SYN");
                 socket.send(request);
+                System.out.println("Mandei o SYN");
 
             } catch (IOException e) {
                 e.printStackTrace();

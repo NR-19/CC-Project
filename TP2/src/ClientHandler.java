@@ -18,11 +18,10 @@ public class ClientHandler implements Runnable{
     @Override
     public void run() {
         PackBuilder pb = new PackBuilder().fromBytes(this.inPacket.getData());
-        byte[] inBuffer = this.inPacket.getData();                  // get client Data
         InetAddress clientIp = this.inPacket.getAddress();          // get client IP
         int port = this.inPacket.getPort();                         // get client port
 
-        String receivedString = new String(inBuffer);
+        System.out.println("ClienteHandler received pb.pacote ==" + pb.getPacote());
 
         // Aqui vamos ter um ciclo "infinito" que vai enviar e ficar à espera da resposta
         // O ciclo acaba quando for para acabar a conexão
@@ -43,6 +42,7 @@ public class ClientHandler implements Runnable{
         DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, clientIp, port);
         try {
             this.socket.send(outPacket);                            // send packet
+            System.out.println("Packet Sent to: " + clientIp + ": " + port);
             this.socket.close();
         } catch (IOException e) {
             e.printStackTrace();
