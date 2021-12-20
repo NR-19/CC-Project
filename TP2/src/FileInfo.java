@@ -4,8 +4,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.io.*;
 
-public class FileInfo {
+public class FileInfo implements Serializable {
 
     public String nomeFicheiro;
     public long dataModificacao;

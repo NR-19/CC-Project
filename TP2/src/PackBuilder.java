@@ -78,6 +78,7 @@ public class PackBuilder implements Serializable {
         this.filename = pb.getFilename();
         this.chunk = pb.getChunk();
         this.tamanho_fich = pb.getTamanho_fich();
+	this.data = pb.getData();
     }
 
     public byte[] toBytes() throws IOException {

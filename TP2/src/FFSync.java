@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +21,8 @@ public class FFSync {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
                 byte[] yourBytes;
-                List<FileInfo> fileInfos = new ArrayList<>();
 
+                List<FileInfo> fileInfos = new ArrayList<>();
 
                 assert files != null;
                 for (File f : files) {
@@ -39,9 +38,9 @@ public class FFSync {
 
                 // Aqui vamos mandar a lista de filesInfo desta pasta
                 PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
-                yourBytes = pb.toBytes();
+                byte[] bytes = pb.toBytes();
 
-                DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
+                DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
 
                 socket.send(request);
@@ -69,15 +68,18 @@ public class FFSync {
                     serverSocket.receive(inPacket);
 
                     PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
+		
+		    
+		    System.out.println(pb.getData().length);
 
                     int pacote = pb.getPacote();
-                    if (pacote == 0) {
+                    if (pacote == PackBuilder.TIPO1) {
                         ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
                         Object o;
                         try (ObjectInput in = new ObjectInputStream(bis)) {
                             o = in.readObject();
                         }
-                        List<FileInfo> fileInfos = (List<FileInfo>) o;
+                        @SuppressWarnings("unchecked") List<FileInfo> fileInfos = (List<FileInfo>) o;
 
                         for(FileInfo f : fileInfos) {
                             System.out.println(f.dataModificacao + " - " + f.nomeFicheiro);
