@@ -7,6 +7,28 @@ public class PackBuilder implements Serializable {
     private int chunk;
     private int tamanho_fich;
 
+    //TIPOS DE PACOTE
+    //  TIPO 1 - LISTA DE NOMES DO FICHEIRO
+    //  TIPO 2 - TRANSFERENCIA DE FICHEIROS
+    //  TIPO 3 - ACK
+    //  TIPO 4 - ERROR
+    public static final int TIPO1 = 1;
+    public static final int TIPO2 = 2;
+    public static final int TIPO3 = 3;
+    public static final int TIPO4 = 4;
+
+    //DEFINE TAMANHO DOS BLOCOS - ?
+
+    //1 THREAD PARA CADA FICHEIRO A SER ENVIADO
+
+
+    public void send_filelistnames(){
+
+    }
+
+    public void recieve_filelistnames(){
+
+    }
 
     public int getPacote() {
         return this.pacote;
