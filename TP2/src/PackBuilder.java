@@ -24,6 +24,20 @@ public class PackBuilder {
         return this.tamanho_fich;
     }
 
+    public PackBuilder() {
+        this.pacote = -1;
+        this.filename = "";
+        this.chunk = 0;
+        this.tamanho_fich = 0;
+    }
+
+    public PackBuilder(int pacote) {
+        this.pacote = pacote;
+        this.filename = "";
+        this.chunk = 0;
+        this.tamanho_fich = 0;
+    }
+
     public PackBuilder(int pacote, String filename, int chunk, int tamanho_fich){
         this.pacote = pacote;
         this.filename = filename;

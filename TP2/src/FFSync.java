@@ -21,17 +21,19 @@ public class FFSync {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
-
                 byte[] yourBytes;
 
-
-
-                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                /*try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                     ObjectOutputStream out = new ObjectOutputStream(bos);
                     out.writeObject(files);
                     out.flush();
                     yourBytes = bos.toByteArray();
-                }
+                }*/
+
+                // Aqui vamos apenas mandar um SYN para avisar o programa que queremos começar a troca
+                // O packBuilder do tipo 0 vai definir um SYN
+                PackBuilder pb =  new PackBuilder(0);
+                yourBytes = pb.toBytes();
 
                 DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
@@ -50,14 +52,9 @@ public class FFSync {
             try {
                 InetAddress host = InetAddress.getLocalHost();
                 String hostName = host.getHostName();
-                System.out.println(hostName);
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+                System.out.println("Ora fds: " + hostName);
+                System.out.println("Listening on port: " + port);
 
-            System.out.println("Listening on port: " + port);
-
-            try {
                 DatagramSocket serverSocket = new DatagramSocket(port);
 
                 while(true) {
@@ -65,16 +62,21 @@ public class FFSync {
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
 
-                    ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
+                    /*ByteArrayInputStream bis = new ByteArrayInputStream(inPacket.getData());
                     Object o;
                     try (ObjectInput in = new ObjectInputStream(bis)) {
                         o = in.readObject();
-                    }
+                    }*/
 
-                    String[] list = (String[]) o;
-                    List<String> filesToSend = new ArrayList<>();
 
-		            System.out.println("A verificar diferenças");
+                    // Não sei como fazer para garantir que eles ficam a falar na mesma socket
+                    PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
+                    System.out.println("Received SYN if 0 ==" + pb.getPacote());
+
+                    // String[] list = (String[]) o;
+                    // List<String> filesToSend = new ArrayList<>();
+
+		            /*System.out.println("A verificar diferenças");
 
                     assert files != null;
                     for (String f : files) {
@@ -83,14 +85,14 @@ public class FFSync {
 					            filesToSend.add(f);
 				            }
 			            }
-                    }
+                    }*/
 
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
                     t.start();
                 }
 
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
