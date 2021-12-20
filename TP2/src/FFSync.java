@@ -96,6 +96,7 @@ public class FFSync {
 
             } catch (IOException e) {
                 e.printStackTrace();
+		System.out.println("ERRO!");
             }
         }).start();
     }

@@ -1,6 +1,6 @@
 import java.io.*;
 
-public class PackBuilder {
+public class PackBuilder implements Serializable {
 
     private int pacote;
     private String filename;
