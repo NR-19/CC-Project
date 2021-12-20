@@ -1,22 +1,13 @@
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileInfo implements Serializable {
 
     public String nomeFicheiro;
     public long dataModificacao;
-
-
-    /*public FileInfo(Path path) throws IOException {
-        BasicFileAttributes ficheiro = Files.getFileAttributeView(path, BasicFileAttributeView.class).readAttributes();
-        this.nomeFicheiro = path.getFileName().toString();
-        this.dataModificacao = ficheiro.lastModifiedTime().toMillis();
-    }*/
 
     public FileInfo(File file) throws IOException {
         this.nomeFicheiro = file.getName();
@@ -27,4 +18,25 @@ public class FileInfo implements Serializable {
 
     //passar de string para a class
 
+
+    // Procurar as diferenças entre as listas
+    public static List<String> neededToSend(List<FileInfo> minhas, List<FileInfo> dele) {
+        List<String> result = new ArrayList<>();
+
+        for (FileInfo f1 : dele) {
+            boolean check = false;
+            for (FileInfo f2 : minhas) {
+                if (f1.nomeFicheiro.equals(f2.nomeFicheiro)) {
+                    if (f1.dataModificacao <= f2.dataModificacao) {
+                        check = true;
+                        break;
+                    }
+                }
+            }
+            if (!check) {
+                result.add(f1.nomeFicheiro);
+            }
+        }
+        return result;
+    }
 }

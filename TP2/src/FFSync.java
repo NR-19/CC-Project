@@ -5,7 +5,6 @@ import java.util.List;
 
 public class FFSync {
     public static void main(String[] args) {
-
         if (args.length < 1) {
             System.out.println("Argumentos Insuficientes");
             return;
@@ -15,19 +14,23 @@ public class FFSync {
         File[] files = pack.listFiles(File::isFile);
         //listaF[0].getAbsolutePath()
 
+        List<FileInfo> fileInfos = new ArrayList<>();
+
+        assert files != null;
+        for (File f : files) {
+            try {
+                fileInfos.add(new FileInfo(f));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         //Efetuar request a um peer no momento do run
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
                 byte[] yourBytes;
-
-                List<FileInfo> fileInfos = new ArrayList<>();
-
-                assert files != null;
-                for (File f : files) {
-                    fileInfos.add(new FileInfo(f));
-                }
 
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                     ObjectOutputStream out = new ObjectOutputStream(bos);
@@ -68,9 +71,6 @@ public class FFSync {
                     serverSocket.receive(inPacket);
 
                     PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
-		
-		    
-		    System.out.println(pb.getData().length);
 
                     int pacote = pb.getPacote();
                     if (pacote == PackBuilder.TIPO1) {
@@ -79,33 +79,24 @@ public class FFSync {
                         try (ObjectInput in = new ObjectInputStream(bis)) {
                             o = in.readObject();
                         }
-                        @SuppressWarnings("unchecked") List<FileInfo> fileInfos = (List<FileInfo>) o;
+                        @SuppressWarnings("unchecked") List<FileInfo> fileInfos2 = (List<FileInfo>) o;
 
-                        for(FileInfo f : fileInfos) {
+                        for(FileInfo f : fileInfos2) {
                             System.out.println(f.dataModificacao + " - " + f.nomeFicheiro);
                         }
+
+                        List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
+
+                        for(String s : aPedir) {
+                            System.out.println("Preciso da: " + s);
+                        }
+
+                    } else {
+                        ClientHandler ch = new ClientHandler(inPacket);
+                        Thread t = new Thread(ch);
+                        t.start();
                     }
-
-                    // String[] list = (String[]) o;
-                    // List<String> filesToSend = new ArrayList<>();
-
-		            /*System.out.println("A verificar diferenças");
-
-                    assert files != null;
-                    for (String f : files) {
-			            for (String f1 : list) {
-				            if(!f.equals(f1)) {
-					            filesToSend.add(f);
-				            }
-			            }
-                    }*/
-
-                    // Aqui podemos passar a porta a usar de maneira a manter uma comunicação
-                    ClientHandler ch = new ClientHandler(inPacket);
-                    Thread t = new Thread(ch);
-                    t.start();
                 }
-
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
