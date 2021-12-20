@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,36 +12,32 @@ public class FFSync {
             return;
         }
 
-        File file = new File(args[0]);
-        File[] listaF = file.listFiles(File::isFile);
+        File pack = new File(args[0]);
+        File[] files = pack.listFiles(File::isFile);
         //listaF[0].getAbsolutePath()
-        String[] files = file.list();
 
-        //Efetuar request a um peer no momento do run da app
+        //Efetuar request a um peer no momento do run
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
                 byte[] yourBytes;
+                List<FileInfo> fileInfos = new ArrayList<>();
 
-                /*try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    ObjectOutputStream out = new ObjectOutputStream(bos);
-                    out.writeObject(files);
-                    out.flush();
-                    yourBytes = bos.toByteArray();
-                }*/
 
-                // Aqui vamos apenas mandar um SYN para avisar o programa que queremos começar a troca
-                // O packBuilder do tipo 0 vai definir um SYN
-                PackBuilder pb =  new PackBuilder(0);
+                assert files != null;
+                for (File f : files) {
+                    fileInfos.add(new FileInfo(f));
+                }
+
+                // Aqui vamos mandar a lista de filesInfo desta pasta
+                PackBuilder pb =  new PackBuilder();
                 yourBytes = pb.toBytes();
 
                 DatagramPacket request = new DatagramPacket(yourBytes, yourBytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
 
-                System.out.println("A mandar o SYN");
                 socket.send(request);
-                System.out.println("Mandei o SYN");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -54,7 +51,7 @@ public class FFSync {
             try {
                 InetAddress host = InetAddress.getLocalHost();
                 String hostName = host.getHostName();
-                System.out.println("Ora fds: " + hostName);
+                System.out.println(hostName);
                 System.out.println("Listening on port: " + port);
 
                 DatagramSocket serverSocket = new DatagramSocket(port);
@@ -70,10 +67,14 @@ public class FFSync {
                         o = in.readObject();
                     }*/
 
-
-                    // Não sei como fazer para garantir que eles ficam a falar na mesma socket
+                    // Não sei como fazer para garantir que eles ficam a falar no mesmo socket
                     PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
-                    System.out.println("Received SYN if 0 ==" + pb.getPacote());
+
+                    int pacote = pb.getPacote();
+                    if (pacote == 0) {
+                        // Aqui vamos enviar a lista de dados para o outro lado
+
+                    }
 
                     // String[] list = (String[]) o;
                     // List<String> filesToSend = new ArrayList<>();
@@ -89,6 +90,7 @@ public class FFSync {
 			            }
                     }*/
 
+                    // Aqui podemos passar a porta a usar de maneira a manter uma comunicação
                     ClientHandler ch = new ClientHandler(inPacket);
                     Thread t = new Thread(ch);
                     t.start();
@@ -96,7 +98,6 @@ public class FFSync {
 
             } catch (IOException e) {
                 e.printStackTrace();
-		System.out.println("ERRO!");
             }
         }).start();
     }
