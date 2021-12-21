@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 public class FFSync {
@@ -145,14 +144,16 @@ public class FFSync {
                             pb = new PackBuilder().fromBytes(inPacket.getData());
                         }
 
-                        Set<byte[]> dataFile =  (Set<byte[]>) chunks.values();
+                        Collection<byte[]> dataFile =  chunks.values();
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         for (byte[] b : dataFile) {
                             bos.write(b);
                         }
                         byte[] result =  bos.toByteArray();
 
-                        Files.write(Path.of("Testes/" + pb.getFilename()), result);
+                        try (FileOutputStream fos = new FileOutputStream(args[0] + pb.getFilename())) {
+                            fos.write(result);
+                        }
 
                         PackBuilder confirmation = new PackBuilder(PackBuilder.TIPO4, "", 0, 0, null);
                         byte[] chunkData = confirmation.toBytes();
