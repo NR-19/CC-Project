@@ -151,7 +151,7 @@ public class FFSync {
                         }
                         byte[] result =  bos.toByteArray();
 
-                        try (FileOutputStream fos = new FileOutputStream(args[0] + pb.getFilename())) {
+                        try (FileOutputStream fos = new FileOutputStream(args[0] + "/" + pb.getFilename())) {
                             fos.write(result);
                         }
 
