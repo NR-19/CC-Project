@@ -1,9 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
 
 public class FFSync {
     public static void main(String[] args) {
@@ -14,7 +13,6 @@ public class FFSync {
 
         File pack = new File(args[0]);
         File[] files = pack.listFiles(File::isFile);
-        //listaF[0].getAbsolutePath()
 
         List<FileInfo> fileInfos = new ArrayList<>();
         if (files != null) {
@@ -121,15 +119,47 @@ public class FFSync {
                                 byte[] chunkData = pbChunk.toBytes();
                                 DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                                 serverSocket.send(request);
-                                System.out.println("Chunk sent: " + s + " " + i / chunk);
                             }
 
+                            PackBuilder ack = new PackBuilder(PackBuilder.TIPO4, s, 0, 0, null);
+                            byte[] chunkData = ack.toBytes();
+                            DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
+                            serverSocket.send(request);
+                            System.out.println("File sent: " + s);
+
                             // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
-                            // serverSocket.receive();
+                            byte[] confirmation = new byte[1500];
+                            DatagramPacket datagramConfirmation = new DatagramPacket(confirmation, confirmation.length);
+                            serverSocket.receive(datagramConfirmation);
+                            // Vai ser preciso tratar desta confirmação
+                            System.out.println("File confirmation received");
                         }
 
                     } else if (pacote == PackBuilder.TIPO3) {
-                        System.out.println("Recebi um chunk");
+                        Map<Integer, byte[]> chunks = new TreeMap<>();
+                        while (pb.getPacote() == PackBuilder.TIPO3) {
+                            chunks.put(pb.getChunk(), pb.getData());
+
+                            // Espera para receber algum pacote
+                            serverSocket.receive(inPacket);
+                            pb = new PackBuilder().fromBytes(inPacket.getData());
+                        }
+
+                        Set<byte[]> dataFile =  (Set<byte[]>) chunks.values();
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        for (byte[] b : dataFile) {
+                            bos.write(b);
+                        }
+                        byte[] result =  bos.toByteArray();
+
+                        Files.write(Path.of("Testes/" + pb.getFilename()), result);
+
+                        PackBuilder confirmation = new PackBuilder(PackBuilder.TIPO4, "", 0, 0, null);
+                        byte[] chunkData = confirmation.toBytes();
+                        DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
+                        serverSocket.send(request);
+                        System.out.println("Confirmation sent");
+
                     } else {
                         ClientHandler ch = new ClientHandler(inPacket);
                         Thread t = new Thread(ch);
