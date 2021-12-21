@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FFSync {
@@ -40,6 +42,7 @@ public class FFSync {
                 DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
                 socket.send(request);
+                System.out.println("Files list sent");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -50,6 +53,7 @@ public class FFSync {
         //Receber pedidos de peers e responder
         new Thread(() -> {
             int port = 80;
+            System.out.println("listening on port: " + port);
             try {
                 DatagramSocket serverSocket = new DatagramSocket(port);
 
@@ -80,6 +84,7 @@ public class FFSync {
                         DatagramPacket request = new DatagramPacket(bytes, bytes.length, clientIP, port);
 
                         serverSocket.send(request);
+                        System.out.println("Files list needed sent");
 
                     }
                     // Se a PackBuilder for do TIPO2, ou seja, um request de files, vai começar o envio desses ficheiros
@@ -87,12 +92,34 @@ public class FFSync {
                         Object o = pb.bytesToObject();
                         @SuppressWarnings("unchecked") List<String> filesToSend = (List<String>) o;
 
+                        // Ainda não testei isto
+                        System.out.println("Sending files: ");
+                        List<File> filesSending = new ArrayList<>();
                         for (String s : filesToSend) {
-                            System.out.println("Vou enviar o ficheiro: " + s);
+                            System.out.println("---> " + s);
+                            File f = new File(s);
+                            filesSending.add(f);
                         }
 
-                        // Aqui vai ser preciso passar a lista de Strings para uma lista de ficheiros
                         // E depois começar a enviar os ficheiros
+                        for (File f : filesSending) {
+                            // Obter o conteúdo do ficheiro em bytes
+                            byte[] fileContent = Files.readAllBytes(f.toPath());
+                            // Dividir o byte[] em chunks
+                            int chunk = 1024;
+                            for (int  i = 0; i < fileContent.length; i+= chunk) {
+                                byte[] data = Arrays.copyOfRange(fileContent, i, Math.min(fileContent.length, i + chunk));
+                                PackBuilder pbChunk = new PackBuilder(PackBuilder.TIPO3, f.getName(), i / chunk, fileContent.length, data);
+                                // Enviar chunk a chunk para o outro lado
+                                byte[] chunkData = pbChunk.toBytes();
+                                DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
+                                serverSocket.send(request);
+                                System.out.println("Chunk sent: " + f.getName() + " " + i / chunk);
+                            }
+
+                            // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
+                            // serverSocket.receive();
+                        }
 
                     } else {
                         ClientHandler ch = new ClientHandler(inPacket);
