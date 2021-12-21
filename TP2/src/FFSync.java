@@ -92,35 +92,44 @@ public class FFSync {
                         Object o = pb.bytesToObject();
                         @SuppressWarnings("unchecked") List<String> filesToSend = (List<String>) o;
 
-                        // Ainda não testei isto
+                        // Enviar os ficheiros
                         System.out.println("Sending files: ");
-                        List<File> filesSending = new ArrayList<>();
                         for (String s : filesToSend) {
                             System.out.println("---> " + s);
-                            File f = new File(s);
-                            filesSending.add(f);
-                        }
 
-                        // E depois começar a enviar os ficheiros
-                        for (File f : filesSending) {
+                            File filetoSend = null;
+                            if (files != null) {
+                                for (File file : files) {
+                                    if (file.getName().equals(s)) {
+                                        filetoSend = file;
+                                        break;
+                                    }
+                                }
+                            }
+
                             // Obter o conteúdo do ficheiro em bytes
-                            byte[] fileContent = Files.readAllBytes(f.toPath());
+                            byte[] fileContent = new byte[0];
+                            if (filetoSend != null) {
+                                fileContent = Files.readAllBytes(filetoSend.toPath());
+                            }
                             // Dividir o byte[] em chunks
                             int chunk = 1024;
                             for (int  i = 0; i < fileContent.length; i+= chunk) {
                                 byte[] data = Arrays.copyOfRange(fileContent, i, Math.min(fileContent.length, i + chunk));
-                                PackBuilder pbChunk = new PackBuilder(PackBuilder.TIPO3, f.getName(), i / chunk, fileContent.length, data);
+                                PackBuilder pbChunk = new PackBuilder(PackBuilder.TIPO3, s, i / chunk, fileContent.length, data);
                                 // Enviar chunk a chunk para o outro lado
                                 byte[] chunkData = pbChunk.toBytes();
                                 DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                                 serverSocket.send(request);
-                                System.out.println("Chunk sent: " + f.getName() + " " + i / chunk);
+                                System.out.println("Chunk sent: " + s + " " + i / chunk);
                             }
 
                             // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
                             // serverSocket.receive();
                         }
 
+                    } else if (pacote == PackBuilder.TIPO3) {
+                        System.out.println("Recebi um chunk");
                     } else {
                         ClientHandler ch = new ClientHandler(inPacket);
                         Thread t = new Thread(ch);
