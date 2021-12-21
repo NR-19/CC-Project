@@ -69,10 +69,15 @@ public class FFSync {
                     byte[] inBuffer = new byte[1500];
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     serverSocket.receive(inPacket);
+                    InetAddress clientIP = inPacket.getAddress();
 
+                    // Transforma a data recebida num PackBuilder
                     PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
 
                     int pacote = pb.getPacote();
+                    // Se a PackBuilder for do TIPO1, ou seja, uma mensagem do outro peer com a
+                    // informação sobre os documentos que esse possui. Vamos comparar essa lista
+                    // com a lista de ficheiros que temos e enviar uma mensagem a pedir os que nos faltam
                     if (pacote == PackBuilder.TIPO1) {
                         ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
                         Object o;
@@ -81,14 +86,32 @@ public class FFSync {
                         }
                         @SuppressWarnings("unchecked") List<FileInfo> fileInfos2 = (List<FileInfo>) o;
 
-                        for(FileInfo f : fileInfos2) {
-                            System.out.println(f.dataModificacao + " - " + f.nomeFicheiro);
-                        }
-
                         List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
 
-                        for(String s : aPedir) {
-                            System.out.println("Preciso da: " + s);
+                        byte[] yourBytes;
+                        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                            ObjectOutputStream out = new ObjectOutputStream(bos);
+                            out.writeObject(aPedir);
+                            out.flush();
+                            yourBytes = bos.toByteArray();
+                        }
+                        PackBuilder pbaux = new PackBuilder(PackBuilder.TIPO2, "", 0, 0, yourBytes);
+
+                        byte[] bytes = pbaux.toBytes();
+                        DatagramPacket request = new DatagramPacket(bytes, bytes.length, clientIP, port);
+
+                        serverSocket.send(request);
+
+                    } else if (pacote == PackBuilder.TIPO2) {
+                        ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
+                        Object o;
+                        try (ObjectInput in = new ObjectInputStream(bis)) {
+                            o = in.readObject();
+                        }
+                        @SuppressWarnings("unchecked") List<String> filesToSend = (List<String>) o;
+
+                        for (String s : filesToSend) {
+                            System.out.println("Vou enviar o ficheiro: " + s);
                         }
 
                     } else {

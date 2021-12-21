@@ -9,14 +9,16 @@ public class PackBuilder implements Serializable {
     private byte[] data;
 
     //TIPOS DE PACOTE
-    //  TIPO 1 - LISTA DE NOMES DO FICHEIRO
-    //  TIPO 2 - TRANSFERENCIA DE FICHEIROS
-    //  TIPO 3 - ACK
-    //  TIPO 4 - ERROR
+    //  TIPO 1 - LISTA DE NOMES DOS FICHEIROS QUE POSSUI
+    //  TIPO 2 - LISTA DE NOMES DOS FICHEIROS QUE PRECISA
+    //  TIPO 3 - TRANSFERENCIA DE FICHEIROS
+    //  TIPO 4 - ACK
+    //  TIPO 5 - ERROR
     public static final int TIPO1 = 1;
     public static final int TIPO2 = 2;
     public static final int TIPO3 = 3;
     public static final int TIPO4 = 4;
+    public static final int TIPO5 = 5;
 
     //DEFINE TAMANHO DOS BLOCOS - ?
 
@@ -53,13 +55,6 @@ public class PackBuilder implements Serializable {
 
     public PackBuilder() {
         this.pacote = -1;
-        this.filename = "";
-        this.chunk = 0;
-        this.tamanho_fich = 0;
-    }
-
-    public PackBuilder(int pacote) {
-        this.pacote = pacote;
         this.filename = "";
         this.chunk = 0;
         this.tamanho_fich = 0;

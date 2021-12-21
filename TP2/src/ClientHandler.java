@@ -26,8 +26,8 @@ public class ClientHandler implements Runnable{
         while(true) {
             // Isto vai ter de estar dentro de um if else que trabalha conforme o que recebe
             // Vamos mandar um ACK só para teste, o objetivo é enviar os files
-            if (pb.getPacote() == 0) {
-                PackBuilder packSend = new PackBuilder(2);
+            /*if (pb.getPacote() == 0) {
+                // PackBuilder packSend = new PackBuilder(2);
                 try {
                     outBuffer = packSend.toBytes();
                 } catch (IOException e) {
@@ -36,7 +36,7 @@ public class ClientHandler implements Runnable{
                 System.out.println("Mandei");
             } else {
                 System.out.println("Olá");
-            }
+            }*/
 
             // create outgoing packet with data, client IP and client port
             DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, clientIp, port);
