@@ -15,13 +15,13 @@ public class FFSync {
         //listaF[0].getAbsolutePath()
 
         List<FileInfo> fileInfos = new ArrayList<>();
-
-        assert files != null;
-        for (File f : files) {
-            try {
-                fileInfos.add(new FileInfo(f));
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (files != null) {
+            for (File f : files) {
+                try {
+                    fileInfos.add(new FileInfo(f));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -29,23 +29,16 @@ public class FFSync {
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-                int port = 8888;
+                int port = 80;
                 byte[] yourBytes;
 
-                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                    ObjectOutputStream out = new ObjectOutputStream(bos);
-                    out.writeObject(fileInfos);
-                    out.flush();
-                    yourBytes = bos.toByteArray();
-                }
-
+                yourBytes = PackBuilder.objectToData(fileInfos);
                 // Aqui vamos mandar a lista de filesInfo desta pasta
                 PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
                 byte[] bytes = pb.toBytes();
 
                 DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
                 DatagramSocket socket = new DatagramSocket();
-
                 socket.send(request);
 
             } catch (IOException e) {
@@ -56,18 +49,14 @@ public class FFSync {
 
         //Receber pedidos de peers e responder
         new Thread(() -> {
-            int port = 8888;
+            int port = 80;
             try {
-                InetAddress host = InetAddress.getLocalHost();
-                String hostName = host.getHostName();
-                System.out.println(hostName);
-                System.out.println("Listening on port: " + port);
-
                 DatagramSocket serverSocket = new DatagramSocket(port);
 
                 while(true) {
                     byte[] inBuffer = new byte[1500];
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
+                    // Espera para receber algum pacote
                     serverSocket.receive(inPacket);
                     InetAddress clientIP = inPacket.getAddress();
 
@@ -79,22 +68,12 @@ public class FFSync {
                     // informação sobre os documentos que esse possui. Vamos comparar essa lista
                     // com a lista de ficheiros que temos e enviar uma mensagem a pedir os que nos faltam
                     if (pacote == PackBuilder.TIPO1) {
-                        ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
-                        Object o;
-                        try (ObjectInput in = new ObjectInputStream(bis)) {
-                            o = in.readObject();
-                        }
+                        Object o = pb.bytesToObject();
                         @SuppressWarnings("unchecked") List<FileInfo> fileInfos2 = (List<FileInfo>) o;
 
                         List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
 
-                        byte[] yourBytes;
-                        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                            ObjectOutputStream out = new ObjectOutputStream(bos);
-                            out.writeObject(aPedir);
-                            out.flush();
-                            yourBytes = bos.toByteArray();
-                        }
+                        byte[] yourBytes = PackBuilder.objectToData(aPedir);
                         PackBuilder pbaux = new PackBuilder(PackBuilder.TIPO2, "", 0, 0, yourBytes);
 
                         byte[] bytes = pbaux.toBytes();
@@ -102,17 +81,18 @@ public class FFSync {
 
                         serverSocket.send(request);
 
-                    } else if (pacote == PackBuilder.TIPO2) {
-                        ByteArrayInputStream bis = new ByteArrayInputStream(pb.getData());
-                        Object o;
-                        try (ObjectInput in = new ObjectInputStream(bis)) {
-                            o = in.readObject();
-                        }
+                    }
+                    // Se a PackBuilder for do TIPO2, ou seja, um request de files, vai começar o envio desses ficheiros
+                    else if (pacote == PackBuilder.TIPO2) {
+                        Object o = pb.bytesToObject();
                         @SuppressWarnings("unchecked") List<String> filesToSend = (List<String>) o;
 
                         for (String s : filesToSend) {
                             System.out.println("Vou enviar o ficheiro: " + s);
                         }
+
+                        // Aqui vai ser preciso passar a lista de Strings para uma lista de ficheiros
+                        // E depois começar a enviar os ficheiros
 
                     } else {
                         ClientHandler ch = new ClientHandler(inPacket);
@@ -120,7 +100,7 @@ public class FFSync {
                         t.start();
                     }
                 }
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();

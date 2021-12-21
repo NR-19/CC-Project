@@ -98,8 +98,33 @@ public class PackBuilder implements Serializable {
         return pb;
     }
 
+    // Passa um objeto para um array de bytes
+    public static byte[] objectToData(Object o) {
+        byte [] yourBytes = null;
 
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(o);
+            out.flush();
+            yourBytes = bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        return yourBytes;
+    }
 
+    public Object bytesToObject() {
+        ByteArrayInputStream bis = new ByteArrayInputStream(this.data);
+        Object o = null;
+
+        try (ObjectInput in = new ObjectInputStream(bis)) {
+            o = in.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return o;
+    }
 
 }
