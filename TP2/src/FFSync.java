@@ -49,6 +49,7 @@ public class FFSync {
 
         //Receber pedidos de peers e responder
         new Thread(() -> {
+            int i = 2000;
             int port = 80;
             System.out.println("listening on port: " + port);
             try {
@@ -63,6 +64,7 @@ public class FFSync {
                     ClientHandler ch = new ClientHandler(inPacket,fileInfos,port,files, args[0]);
                     Thread cht = new Thread(ch);
                     cht.start();
+                    i++;
                 }
 
             } catch (IOException e) {
