@@ -61,7 +61,7 @@ public class FFSync {
                     // Espera para receber algum pacote
                     serverSocket.receive(inPacket);
 
-                    ClientHandler ch = new ClientHandler(inPacket,fileInfos,port,files, args[0]);
+                    ClientHandler ch = new ClientHandler(inPacket,fileInfos,i,files, args[0]);
                     Thread cht = new Thread(ch);
                     cht.start();
                     i++;
