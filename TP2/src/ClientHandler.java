@@ -149,6 +149,7 @@ public class ClientHandler implements Runnable {
                     System.out.println("Recebi o FIN");
                     // Acabar conexão
                 }
+                this.socket.receive(this.inPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
