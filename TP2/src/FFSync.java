@@ -127,8 +127,8 @@ public class FFSync {
                             DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                             serverSocket.send(request);
 
-                            long tempoFimTrasnferencia = (System.currentTimeMillis() - tempoInicial) / 1000;
-                            System.out.println("File " + s +" sent in " + tempoFimTrasnferencia + " seconds");
+                            long tempoFimTrasnferencia = (System.currentTimeMillis() - tempoInicial);
+                            System.out.println("File " + s +" sent in " + tempoFimTrasnferencia + " miliseconds");
 
                             // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
                             byte[] confirmation = new byte[1500];
@@ -174,7 +174,7 @@ public class FFSync {
 
                     } else if (pacote == PackBuilder.TIPO5) {
                         System.out.println("Recebi o FIN");
-                        // Não sei bem o que é preciso fazer depois de acabar a conexão
+                        // Acabar conexão
                     }
                 }
             } catch (IOException e) {

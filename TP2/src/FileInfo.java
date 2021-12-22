@@ -14,11 +14,6 @@ public class FileInfo implements Serializable {
         this.dataModificacao = file.lastModified();
     }
 
-    //passar tudo para string
-
-    //passar de string para a class
-
-
     // Procurar as diferenças entre as listas
     public static List<String> neededToSend(List<FileInfo> minhas, List<FileInfo> dele) {
         List<String> result = new ArrayList<>();
