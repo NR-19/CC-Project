@@ -15,6 +15,7 @@ public class PackBuilder implements Serializable {
     //  TIPO 4 - ACK
     //  TIPO 5 - FIN
     //  TIPO 6 - ERROR
+    public static final int TIPO0 = 0;
     public static final int TIPO1 = 1;
     public static final int TIPO2 = 2;
     public static final int TIPO3 = 3;
