@@ -13,12 +13,14 @@ public class PackBuilder implements Serializable {
     //  TIPO 2 - LISTA DE NOMES DOS FICHEIROS QUE PRECISA
     //  TIPO 3 - TRANSFERENCIA DE FICHEIROS
     //  TIPO 4 - ACK
-    //  TIPO 5 - ERROR
+    //  TIPO 5 - FIN
+    //  TIPO 6 - ERROR
     public static final int TIPO1 = 1;
     public static final int TIPO2 = 2;
     public static final int TIPO3 = 3;
     public static final int TIPO4 = 4;
     public static final int TIPO5 = 5;
+    public static final int TIPO6 = 6;
 
     //DEFINE TAMANHO DOS BLOCOS - ?
 

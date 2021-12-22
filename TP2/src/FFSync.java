@@ -104,6 +104,8 @@ public class FFSync {
                                 }
                             }
 
+                            long tempoInicial = System.currentTimeMillis();
+
                             // Obter o conteúdo do ficheiro em bytes
                             byte[] fileContent = new byte[0];
                             if (filetoSend != null) {
@@ -124,7 +126,9 @@ public class FFSync {
                             byte[] chunkData = ack.toBytes();
                             DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                             serverSocket.send(request);
-                            System.out.println("File sent: " + s);
+
+                            long tempoFimTrasnferencia = (System.currentTimeMillis() - tempoInicial) / 1000;
+                            System.out.println("File " + s +" sent in " + tempoFimTrasnferencia + " seconds");
 
                             // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
                             byte[] confirmation = new byte[1500];
@@ -133,6 +137,13 @@ public class FFSync {
                             // Vai ser preciso tratar desta confirmação
                             System.out.println("File confirmation received");
                         }
+
+                        // Aqui acabam se os ficheiros por isso é preciso avisar
+                        PackBuilder fin = new PackBuilder(PackBuilder.TIPO5, "", 0, 0, null);
+                        byte[] chunkData = fin.toBytes();
+                        DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
+                        serverSocket.send(request);
+                        System.out.println("FIN sent");
 
                     } else if (pacote == PackBuilder.TIPO3) {
                         Map<Integer, byte[]> chunks = new TreeMap<>();
@@ -161,10 +172,9 @@ public class FFSync {
                         serverSocket.send(request);
                         System.out.println("Confirmation sent");
 
-                    } else {
-                        ClientHandler ch = new ClientHandler(inPacket);
-                        Thread t = new Thread(ch);
-                        t.start();
+                    } else if (pacote == PackBuilder.TIPO5) {
+                        System.out.println("Recebi o FIN");
+                        // Não sei bem o que é preciso fazer depois de acabar a conexão
                     }
                 }
             } catch (IOException e) {

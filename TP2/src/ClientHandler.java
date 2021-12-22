@@ -4,7 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
 
     private DatagramPacket inPacket;
     private DatagramSocket socket;
