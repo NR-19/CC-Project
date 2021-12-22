@@ -20,7 +20,7 @@ public abstract class LogBuilder {
     }
 
     public static void errorLine(String e) throws IOException {
-        writeLine("Algo de errado aconteceu. Aqui está o que consigo saber sobre o erro: \n"+ e);
+        writeLine("Algo de errado aconteceu: "+ e);
     }
 
     public static void writeLine(String text) throws IOException {

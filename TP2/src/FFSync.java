@@ -28,7 +28,7 @@ public class FFSync {
         new Thread(() -> {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
-                int port = 80;
+                int port = 8888;
                 byte[] yourBytes;
 
                 yourBytes = PackBuilder.objectToData(fileInfos);
@@ -49,8 +49,7 @@ public class FFSync {
 
         //Receber pedidos de peers e responder
         new Thread(() -> {
-            int i = 2000;
-            int port = 80;
+            int port = 8888;
             System.out.println("listening on port: " + port);
             try {
                 DatagramSocket serverSocket = new DatagramSocket(port);
@@ -61,10 +60,9 @@ public class FFSync {
                     // Espera para receber algum pacote
                     serverSocket.receive(inPacket);
 
-                    ClientHandler ch = new ClientHandler(inPacket,fileInfos,i,files, args[0]);
+                    ClientHandler ch = new ClientHandler(inPacket,fileInfos,files, args[0]);
                     Thread cht = new Thread(ch);
                     cht.start();
-                    i++;
                 }
 
             } catch (IOException e) {

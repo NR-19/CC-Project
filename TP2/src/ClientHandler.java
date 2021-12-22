@@ -11,16 +11,14 @@ public class ClientHandler implements Runnable {
     private DatagramPacket inPacket;
     private DatagramSocket socket;
     private List<FileInfo> fileInfos;
-    private int port;
     private File[] files;
     private String pathTo;
 
 
-    public ClientHandler (DatagramPacket inPacket, List<FileInfo> fileInfos, int port, File[] files, String pathTo) throws SocketException {
+    public ClientHandler (DatagramPacket inPacket, List<FileInfo> fileInfos, File[] files, String pathTo) throws SocketException {
         this.inPacket = inPacket;
-        this.socket = new DatagramSocket(port);
+        this.socket = new DatagramSocket();
         this.fileInfos = fileInfos;
-        this.port = port;
         this.files = files;
         this.pathTo = pathTo;
     }
@@ -32,6 +30,7 @@ public class ClientHandler implements Runnable {
         while (running) {
             try {
                 InetAddress clientIP = inPacket.getAddress();
+                int port = inPacket.getPort();
 
                 // Transforma a data recebida num PackBuilder
                 PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
