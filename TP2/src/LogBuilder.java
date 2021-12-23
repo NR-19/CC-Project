@@ -7,7 +7,7 @@ public abstract class LogBuilder {
 
     public static void createFile() {
         try {
-            File logfile = new File("./TP2/src/logs.txt");
+            File logfile = new File("logs.txt");
             if (logfile.createNewFile()) {
                 System.out.println("Ficheiro de logs criado: " + logfile.getName());
             } else {
@@ -24,7 +24,7 @@ public abstract class LogBuilder {
     }
 
     public static void writeLine(String text) throws IOException {
-        FileWriter fileWriter = new FileWriter("./TP2/src/logs.txt");
+        FileWriter fileWriter = new FileWriter("logs.txt");
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(text+"\n");
     }
