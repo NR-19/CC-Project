@@ -161,6 +161,7 @@ public class ClientHandler implements Runnable {
                 } else if (pacote == PackBuilder.TIPO5) {
                     running=false;
                     LogBuilder.writeLine("Recebi flag de finalização.");
+                    System.out.println("Processo terminado.");
                     // Acabar conexão
                 }
                 this.socket.receive(this.inPacket);
