@@ -73,7 +73,7 @@ public class ClientHandler implements Runnable {
                     this.socket.send(sendPacket);
                     LogBuilder.writeLine("Enviei a minha lista de ficheiros a "+sendPacket.getAddress());
                     byte[] bytes = gerarDif(inPacket, fileInfos);
-                    DatagramPacket request = new DatagramPacket(bytes, bytes.length, inPacket.getAddress(), 8888);
+                    DatagramPacket request = new DatagramPacket(bytes, bytes.length, inPacket.getAddress(), port);
 
                     this.socket.send(request);
                     LogBuilder.writeLine("Enviei a lista de ficheiros que necessito para: "+request.getAddress());
