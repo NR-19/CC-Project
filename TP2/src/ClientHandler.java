@@ -127,7 +127,7 @@ public class ClientHandler implements Runnable {
                     byte[] chunkData = fin.toBytes();
                     DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                     this.socket.send(request);
-                    LogBuilder.writeLine("Enviei a flag de finaização.");
+                    LogBuilder.writeLine("Enviei a flag de finalização.");
 
                 } else if (pacote == PackBuilder.TIPO3) {
                     Map<Integer, byte[]> chunks = new TreeMap<>();
@@ -148,6 +148,8 @@ public class ClientHandler implements Runnable {
 
                     try (FileOutputStream fos = new FileOutputStream(pathTo + "/" + pb.getFilename())) {
                         fos.write(result);
+                    }catch(FileNotFoundException f){
+                        
                     }
 
                     PackBuilder confirmation = new PackBuilder(PackBuilder.TIPO4, "", 0, 0, null);

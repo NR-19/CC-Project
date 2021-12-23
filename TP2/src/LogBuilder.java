@@ -24,7 +24,7 @@ public abstract class LogBuilder {
     }
 
     public static void writeLine(String text) throws IOException {
-        FileWriter fileWriter = new FileWriter("logs.txt");
+        FileWriter fileWriter = new FileWriter("logs.txt", true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(text+"\n");
         fileWriter.flush();
