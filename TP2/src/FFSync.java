@@ -10,6 +10,7 @@ public class FFSync {
             return;
         }
 
+        LogBuilder.createFile();
         File pack = new File(args[0]);
         File[] files = pack.listFiles(File::isFile);
 
