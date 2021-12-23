@@ -59,6 +59,11 @@ public class FFSync {
                 //ClientHandler chf = new ClientHandler(receiveFile,fileInfos,);
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    LogBuilder.errorLine(e.toString());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
 
         }).start();
@@ -66,8 +71,8 @@ public class FFSync {
         //Receber pedidos de peers e responder
         new Thread(() -> {
             int port = 8888;
-            System.out.println("listening on port: " + port);
             try {
+                LogBuilder.writeLine("Listening on port: " + port);
                 DatagramSocket serverSocket = new DatagramSocket(port);
 
                 while(true) {
@@ -75,14 +80,21 @@ public class FFSync {
                     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                     // Espera para receber algum pacote
                     serverSocket.receive(inPacket);
+                    LogBuilder.writeLine("Received packet from: "+inPacket.getAddress());
 
                     ClientHandler ch = new ClientHandler(inPacket, fileInfos, files, args[0]);
                     Thread cht = new Thread(ch);
                     cht.start();
+                    LogBuilder.writeLine("Launched thread to deal with "+inPacket.getAddress());
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    LogBuilder.errorLine(e.toString());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }).start();
     }

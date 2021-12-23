@@ -30,6 +30,7 @@ public class ClientHandler implements Runnable {
         List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
         byte[] yourBytes2 = PackBuilder.objectToData(aPedir);
         PackBuilder pbaux = new PackBuilder(PackBuilder.TIPO2, "", 0, 0, yourBytes2);
+        LogBuilder.writeLine("Gerei as diferenças entre a lista de ficheiros de "+receive.getAddress()+" e os meus ficheiros");
         return pbaux.toBytes();
     }
 
@@ -57,11 +58,12 @@ public class ClientHandler implements Runnable {
                     byte[] send = toSend.toBytes();
                     DatagramPacket sendPacket = new DatagramPacket(send, send.length , inPacket.getAddress(), inPacket.getPort());
                     this.socket.send(sendPacket);
+                    LogBuilder.writeLine("Enviei a minha lista de ficheiros a "+sendPacket.getAddress());
                     byte[] bytes = gerarDif(inPacket, fileInfos);
                     DatagramPacket request = new DatagramPacket(bytes, bytes.length, inPacket.getAddress(), 8888);
 
                     this.socket.send(request);
-                    System.out.println("Files list needed sent");
+                    LogBuilder.writeLine("Enviei a lista de ficheiros que necessito para: "+request.getAddress());
 
                 }
                 // Se a PackBuilder for do TIPO2, ou seja, um request de files, vai começar o envio desses ficheiros
@@ -70,9 +72,9 @@ public class ClientHandler implements Runnable {
                     @SuppressWarnings("unchecked") List<String> filesToSend = (List<String>) o;
 
                     // Enviar os ficheiros
-                    System.out.println("Sending files: ");
+                    LogBuilder.writeLine("Os seguintes ficheiros foram marcados para envio:");
                     for (String s : filesToSend) {
-                        System.out.println("---> " + s);
+                        LogBuilder.writeLine("---> " + s);
 
                         File filetoSend = null;
                         if (files != null) {
@@ -93,6 +95,7 @@ public class ClientHandler implements Runnable {
                         }
                         // Dividir o byte[] em chunks
                         int chunk = 1024;
+                        LogBuilder.writeLine("A iniciar o envio das chunks:");
                         for (int i = 0; i < fileContent.length; i += chunk) {
                             byte[] data = Arrays.copyOfRange(fileContent, i, Math.min(fileContent.length, i + chunk));
                             PackBuilder pbChunk = new PackBuilder(PackBuilder.TIPO3, s, i / chunk, fileContent.length, data);
@@ -100,6 +103,7 @@ public class ClientHandler implements Runnable {
                             byte[] chunkData = pbChunk.toBytes();
                             DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                             this.socket.send(request);
+                            LogBuilder.writeLine("Enviado chunk nº"+i+" para:"+request.getAddress());
                         }
 
                         PackBuilder ack = new PackBuilder(PackBuilder.TIPO4, s, 0, 0, null);
@@ -108,14 +112,14 @@ public class ClientHandler implements Runnable {
                         this.socket.send(request);
 
                         long tempoFimTrasnferencia = (System.currentTimeMillis() - tempoInicial);
-                        System.out.println("File " + s + " sent in " + tempoFimTrasnferencia + " miliseconds");
+                        LogBuilder.writeLine("Envio " + s + " efetuado em " + tempoFimTrasnferencia + " milisegundos");
 
                         // Esperar pelo chunk de confirmação antes de enviar outro ficheiro
                         byte[] confirmation = new byte[1500];
                         DatagramPacket datagramConfirmation = new DatagramPacket(confirmation, confirmation.length);
                         this.socket.receive(datagramConfirmation);
                         // Vai ser preciso tratar desta confirmação
-                        System.out.println("File confirmation received");
+                        LogBuilder.writeLine("Recebida confirmação de recepção.");
                     }
 
                     // Aqui acabam se os ficheiros por isso é preciso avisar
@@ -123,7 +127,7 @@ public class ClientHandler implements Runnable {
                     byte[] chunkData = fin.toBytes();
                     DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                     this.socket.send(request);
-                    System.out.println("FIN sent");
+                    LogBuilder.writeLine("Enviei a flag de finaização.");
 
                 } else if (pacote == PackBuilder.TIPO3) {
                     Map<Integer, byte[]> chunks = new TreeMap<>();
@@ -150,11 +154,11 @@ public class ClientHandler implements Runnable {
                     byte[] chunkData = confirmation.toBytes();
                     DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                     this.socket.send(request);
-                    System.out.println("Confirmation sent");
+                    LogBuilder.writeLine("Enviei confirmação de recepção.");
 
                 } else if (pacote == PackBuilder.TIPO5) {
                     running=false;
-                    System.out.println("Recebi o FIN");
+                    LogBuilder.writeLine("Recebi flag de finalização.");
                     // Acabar conexão
                 }
                 this.socket.receive(this.inPacket);

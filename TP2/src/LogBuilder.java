@@ -20,13 +20,13 @@ public abstract class LogBuilder {
     }
 
     public static void errorLine(String e) throws IOException {
-        writeLine("Algo de errado aconteceu: "+ e);
+        writeLine("ERROR: "+ e + "\n");
     }
 
     public static void writeLine(String text) throws IOException {
         FileWriter fileWriter = new FileWriter("./TP2/src/logs.txt");
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.write(text);
+        bufferedWriter.write(text+"\n");
     }
 
 }
