@@ -42,6 +42,10 @@ public class ClientHandler implements Runnable {
         DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, 8888);
         DatagramSocket socket = new DatagramSocket();
         socket.send(request);
+        byte[] bytesR = new byte[1500];
+        DatagramPacket receive = new DatagramPacket(bytesR, bytesR.length);
+        socket.receive(receive);
+        this.inPacket=receive;
     }
 
     @Override
