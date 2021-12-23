@@ -2,11 +2,11 @@ import java.io.*;
 
 public class PackBuilder implements Serializable {
 
-    private int pacote;
-    private String filename;
-    private int chunk;
-    private int tamanho_fich;
-    private byte[] data;
+    private final int pacote;
+    private final String filename;
+    private final int chunk;
+    private final int tamanho_fich;
+    private final byte[] data;
 
     //TIPOS DE PACOTE
     //  TIPO 1 - LISTA DE NOMES DOS FICHEIROS QUE POSSUI
@@ -21,19 +21,6 @@ public class PackBuilder implements Serializable {
     public static final int TIPO4 = 4;
     public static final int TIPO5 = 5;
     public static final int TIPO6 = 6;
-
-    //DEFINE TAMANHO DOS BLOCOS - ?
-
-    //1 THREAD PARA CADA FICHEIRO A SER ENVIADO
-
-
-    public void send_filelistnames(){
-
-    }
-
-    public void recieve_filelistnames(){
-
-    }
 
     public int getPacote() {
         return this.pacote;
@@ -55,13 +42,6 @@ public class PackBuilder implements Serializable {
         return this.data;
     }
 
-    public PackBuilder() {
-        this.pacote = -1;
-        this.filename = "";
-        this.chunk = 0;
-        this.tamanho_fich = 0;
-    }
-
     public PackBuilder(int pacote, String filename, int chunk, int tamanho_fich, byte[] data){
         this.pacote = pacote;
         this.filename = filename;
@@ -75,7 +55,7 @@ public class PackBuilder implements Serializable {
         this.filename = pb.getFilename();
         this.chunk = pb.getChunk();
         this.tamanho_fich = pb.getTamanho_fich();
-	this.data = pb.getData();
+	    this.data = pb.getData();
     }
 
     public byte[] toBytes() throws IOException {

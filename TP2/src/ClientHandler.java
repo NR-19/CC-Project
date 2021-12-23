@@ -9,10 +9,10 @@ import java.util.*;
 public class ClientHandler implements Runnable {
 
     private DatagramPacket inPacket;
-    private DatagramSocket socket;
-    private List<FileInfo> fileInfos;
-    private File[] files;
-    private String pathTo;
+    private final DatagramSocket socket;
+    private final List<FileInfo> fileInfos;
+    private final File[] files;
+    private final String pathTo;
 
 
     public ClientHandler (DatagramPacket inPacket, List<FileInfo> fileInfos, File[] files, String pathTo) throws SocketException {
@@ -42,6 +42,7 @@ public class ClientHandler implements Runnable {
         DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, 8888);
         DatagramSocket socket = new DatagramSocket();
         socket.send(request);
+        System.out.println("Files list sent");
         byte[] bytesR = new byte[1500];
         DatagramPacket receive = new DatagramPacket(bytesR, bytesR.length);
         socket.receive(receive);
@@ -58,7 +59,7 @@ public class ClientHandler implements Runnable {
 
                 // Transforma a data recebida num PackBuilder
 
-                PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
+                PackBuilder pb = PackBuilder.fromBytes(inPacket.getData());
 
                 int pacote = pb.getPacote();
                 // Se a PackBuilder for do TIPO1, ou seja, uma mensagem do outro peer com a
@@ -149,7 +150,7 @@ public class ClientHandler implements Runnable {
 
                         // Espera para receber algum pacote
                         this.socket.receive(inPacket);
-                        pb = new PackBuilder().fromBytes(inPacket.getData());
+                        pb = PackBuilder.fromBytes(inPacket.getData());
                     }
 
                     Collection<byte[]> dataFile = chunks.values();
