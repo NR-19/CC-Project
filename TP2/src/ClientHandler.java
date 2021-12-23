@@ -34,10 +34,19 @@ public class ClientHandler implements Runnable {
         return pbaux.toBytes();
     }
 
+    public void send(InetAddress ip) throws IOException {
+        byte[] yourBytes;
+        yourBytes = PackBuilder.objectToData(fileInfos);
+        PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
+        byte[] bytes = pb.toBytes();
+        DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, 8888);
+        DatagramSocket socket = new DatagramSocket();
+        socket.send(request);
+    }
+
     @Override
     public void run() {
         boolean running = true;
-
         while (running) {
             try {
                 InetAddress clientIP = inPacket.getAddress();

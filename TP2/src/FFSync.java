@@ -30,23 +30,25 @@ public class FFSync {
             try {
                 InetAddress ip = InetAddress.getByName(args[1]);
                 int port = 8888;
-                byte[] yourBytes;
+                //byte[] yourBytes;
 
-                yourBytes = PackBuilder.objectToData(fileInfos);
+                //yourBytes = PackBuilder.objectToData(fileInfos);
                 // Aqui vamos mandar a lista de filesInfo desta pasta
-                PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
-                byte[] bytes = pb.toBytes();
+                //PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
+                //byte[] bytes = pb.toBytes();
                 byte[] bytesR = new byte[1500];
 
-                DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
+                //DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
                 DatagramPacket receive = new DatagramPacket(bytesR, bytesR.length);
-                DatagramSocket socket = new DatagramSocket();
-                socket.send(request);
+                //DatagramSocket socket = new DatagramSocket();
+                //socket.send(request);
                 System.out.println("Files list sent");
-                socket.setSoTimeout(2000);
+                //socket.setSoTimeout(2000);
 
-                socket.receive(receive);
+                //socket.receive(receive);
+
                 ClientHandler chm = new ClientHandler(receive, fileInfos, files, args[0]);
+                chm.send(ip);
                 Thread tchm = new Thread(chm);
                 tchm.start();
 
@@ -56,8 +58,8 @@ public class FFSync {
                 //byte[] byteFile = new byte[150000];
                 //DatagramPacket receiveFile = new DatagramPacket(byteFile, byteFile.length);
                 //socket.receive(receiveFile);
-
                 //ClientHandler chf = new ClientHandler(receiveFile,fileInfos,);
+
             } catch (IOException e) {
                 e.printStackTrace();
                 try {
