@@ -45,12 +45,16 @@ public class FFSync {
                 socket.setSoTimeout(2000);
 
                 socket.receive(receive);
-                byte[] byets = ClientHandler.gerarDif(receive, fileInfos);
-                DatagramPacket request2 = new DatagramPacket(byets, byets.length, receive.getAddress(), 8888);
-                socket.send(request2);
-                byte[] byteFile = new byte[150000];
-                DatagramPacket receiveFile = new DatagramPacket(byteFile, byteFile.length);
-                socket.receive(receiveFile);
+                ClientHandler chm = new ClientHandler(receive, fileInfos, files, args[0]);
+                Thread tchm = new Thread(chm);
+                tchm.start();
+
+                //byte[] byets = ClientHandler.gerarDif(receive, fileInfos);
+                //DatagramPacket request2 = new DatagramPacket(byets, byets.length, receive.getAddress(), 8888);
+                //socket.send(request2);
+                //byte[] byteFile = new byte[150000];
+                //DatagramPacket receiveFile = new DatagramPacket(byteFile, byteFile.length);
+                //socket.receive(receiveFile);
 
                 //ClientHandler chf = new ClientHandler(receiveFile,fileInfos,);
             } catch (IOException e) {
