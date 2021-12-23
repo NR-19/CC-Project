@@ -23,6 +23,16 @@ public class ClientHandler implements Runnable {
         this.pathTo = pathTo;
     }
 
+    public static byte[] gerarDif(DatagramPacket receive, List<FileInfo> fileInfos) throws IOException {
+        PackBuilder pb2 = PackBuilder.fromBytes(receive.getData());
+        Object o = pb2.bytesToObject();
+        @SuppressWarnings("unchecked") List<FileInfo> fileInfos2 = (List<FileInfo>) o;
+        List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
+        byte[] yourBytes2 = PackBuilder.objectToData(aPedir);
+        PackBuilder pbaux = new PackBuilder(PackBuilder.TIPO2, "", 0, 0, yourBytes2);
+        return pbaux.toBytes();
+    }
+
     @Override
     public void run() {
         boolean running = true;
@@ -33,6 +43,7 @@ public class ClientHandler implements Runnable {
                 int port = inPacket.getPort();
 
                 // Transforma a data recebida num PackBuilder
+
                 PackBuilder pb = new PackBuilder().fromBytes(inPacket.getData());
 
                 int pacote = pb.getPacote();
@@ -40,16 +51,14 @@ public class ClientHandler implements Runnable {
                 // informação sobre os documentos que esse possui. Vamos comparar essa lista
                 // com a lista de ficheiros que temos e enviar uma mensagem a pedir os que nos faltam
                 if (pacote == PackBuilder.TIPO1) {
-                    Object o = pb.bytesToObject();
-                    @SuppressWarnings("unchecked") List<FileInfo> fileInfos2 = (List<FileInfo>) o;
 
-                    List<String> aPedir = FileInfo.neededToSend(fileInfos, fileInfos2);
-
-                    byte[] yourBytes = PackBuilder.objectToData(aPedir);
-                    PackBuilder pbaux = new PackBuilder(PackBuilder.TIPO2, "", 0, 0, yourBytes);
-
-                    byte[] bytes = pbaux.toBytes();
-                    DatagramPacket request = new DatagramPacket(bytes, bytes.length, clientIP, port);
+                    byte [] yourBytes = PackBuilder.objectToData(fileInfos);
+                    PackBuilder toSend = new PackBuilder(PackBuilder.TIPO1, "",0,0, yourBytes);
+                    byte[] send = toSend.toBytes();
+                    DatagramPacket sendPacket = new DatagramPacket(send, send.length , inPacket.getAddress(), inPacket.getPort());
+                    this.socket.send(sendPacket);
+                    byte[] bytes = gerarDif(inPacket, fileInfos);
+                    DatagramPacket request = new DatagramPacket(bytes, bytes.length, inPacket.getAddress(), 8888);
 
                     this.socket.send(request);
                     System.out.println("Files list needed sent");

@@ -15,7 +15,6 @@ public class PackBuilder implements Serializable {
     //  TIPO 4 - ACK
     //  TIPO 5 - FIN
     //  TIPO 6 - ERROR
-    public static final int TIPO0 = 0;
     public static final int TIPO1 = 1;
     public static final int TIPO2 = 2;
     public static final int TIPO3 = 3;
@@ -88,7 +87,7 @@ public class PackBuilder implements Serializable {
         }
     }
 
-    public PackBuilder fromBytes(byte[] data){
+    public static PackBuilder fromBytes(byte[] data){
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         Object o;
         PackBuilder pb = null;

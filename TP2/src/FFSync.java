@@ -34,9 +34,8 @@ public class FFSync {
                 yourBytes = PackBuilder.objectToData(fileInfos);
                 // Aqui vamos mandar a lista de filesInfo desta pasta
                 PackBuilder pb =  new PackBuilder(PackBuilder.TIPO1, "", 0, 0, yourBytes);
-                PackBuilder pbR =  new PackBuilder(PackBuilder.TIPO0, "", 0, 0, yourBytes);
                 byte[] bytes = pb.toBytes();
-                byte[] bytesR = pbR.toBytes();
+                byte[] bytesR = new byte[1500];
 
                 DatagramPacket request = new DatagramPacket(bytes, bytes.length, ip, port);
                 DatagramPacket receive = new DatagramPacket(bytesR, bytesR.length);
@@ -45,10 +44,15 @@ public class FFSync {
                 System.out.println("Files list sent");
                 socket.setSoTimeout(2000);
 
-                //dentro do handler
                 socket.receive(receive);
+                byte[] byets = ClientHandler.gerarDif(receive, fileInfos);
+                DatagramPacket request2 = new DatagramPacket(byets, byets.length, receive.getAddress(), 8888);
+                socket.send(request2);
+                byte[] byteFile = new byte[150000];
+                DatagramPacket receiveFile = new DatagramPacket(byteFile, byteFile.length);
+                socket.receive(receiveFile);
 
-
+                //ClientHandler chf = new ClientHandler(receiveFile,fileInfos,);
             } catch (IOException e) {
                 e.printStackTrace();
             }
