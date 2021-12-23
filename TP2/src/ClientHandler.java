@@ -103,7 +103,7 @@ public class ClientHandler implements Runnable {
                             byte[] chunkData = pbChunk.toBytes();
                             DatagramPacket request = new DatagramPacket(chunkData, chunkData.length, clientIP, port);
                             this.socket.send(request);
-                            LogBuilder.writeLine("Enviado chunk nº"+i+" para:"+request.getAddress());
+                            LogBuilder.writeLine("Enviado chunk nº"+i/chunk+" para:"+request.getAddress());
                         }
 
                         PackBuilder ack = new PackBuilder(PackBuilder.TIPO4, s, 0, 0, null);
@@ -149,7 +149,7 @@ public class ClientHandler implements Runnable {
                     try (FileOutputStream fos = new FileOutputStream(pathTo + "/" + pb.getFilename())) {
                         fos.write(result);
                     }catch(FileNotFoundException f){
-                        
+
                     }
 
                     PackBuilder confirmation = new PackBuilder(PackBuilder.TIPO4, "", 0, 0, null);
