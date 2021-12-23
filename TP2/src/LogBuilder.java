@@ -27,6 +27,8 @@ public abstract class LogBuilder {
         FileWriter fileWriter = new FileWriter("logs.txt");
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(text+"\n");
+        fileWriter.close();
+        bufferedWriter.close();
     }
 
 }
