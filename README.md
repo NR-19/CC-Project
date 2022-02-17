@@ -1,2 +1,2 @@
 # CC
-CC TP2
+Trabalho Prático da cadeira de CC (java)
